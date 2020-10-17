@@ -1,0 +1,205 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        
+        table,
+        th,
+        tr,
+        td {
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h3>Create</h3>
+    <form action="https://simkacrud.herokuapp.com/posts" method="POST" id="form-create">
+        <input name="title" id="title" placeholder="Title">
+        <br>
+        <br>
+        <input name="description" id="desc" placeholder="Description">
+        <br>
+        <br>
+        <input type="submit" value="Create" />
+    </form>
+    <br>
+    <hr>
+
+    <h3>Read</h3>
+    <div id="div1"></div>
+    <br>
+    <button onclick="window.location.reload();">Refresh</button>
+    <br>
+    <br>
+    <br>
+    <hr>
+
+    <h3>Update</h3>
+    <form action="https://simkacrud.herokuapp.com/posts" method="PATCH" id="form-update">
+        <input name="_id" id="_id" placeholder="_id">
+        <br>
+        <br>
+        <input name="title" id="title" placeholder="Title">
+        <br>
+        <br>
+        <input name="description" id="desc" placeholder="Description">
+        <br>
+        <br>
+        <input type="submit" value="Update" />
+    </form>
+    <br>
+    <hr>
+
+    <h3>Delete</h3>
+    <form action="https://simkacrud.herokuapp.com/posts" method="DELETE" id="form-delete">
+        <input name="_id" id="_id" placeholder="_id">
+        <br>
+        <br>
+        <input type="submit" value="Delete" />
+    </form>
+
+    <script>
+        function createTableHead(tbl, el0, el1, el2) {
+            var row = document.createElement("tr");
+            var cell0 = document.createElement("td");
+            var cell1 = document.createElement("td");
+            var cell2 = document.createElement("td");
+
+            row.appendChild(cell0);
+            row.appendChild(cell1);
+            row.appendChild(cell2);
+            tbl.appendChild(row);
+
+            cell0.innerHTML = "<p><b>" + el0 + "</b></p>";
+            cell1.innerHTML = "<p><b>" + el1 + "</b></p>";
+            cell2.innerHTML = "<p><b>" + el2 + "</b></p>";
+        }
+
+        function drawTable(data) {
+            var totalRows = data.length;
+
+            // get the reference for the body
+            var div1 = document.getElementById('div1');
+
+            // creates a <table> element
+            var tbl = document.createElement("table");
+            tbl.setAttribute("id", "table1");
+
+            // creates a table head
+            createTableHead(tbl, "_id", "title", "description");
+
+            // creating rows
+            for (var r = 0; r < totalRows; r++) {
+
+                var row = document.createElement("tr");
+                var cell0 = document.createElement("td");
+                var cell1 = document.createElement("td");
+                var cell2 = document.createElement("td");
+
+                row.appendChild(cell0);
+                row.appendChild(cell1);
+                row.appendChild(cell2);
+                tbl.appendChild(row);
+
+                cell0.innerHTML = "<p>" + data[r]._id + "</p>";
+                cell1.innerHTML = "<p>" + data[r].title + "</p>";
+                cell2.innerHTML = "<p>" + data[r].description + "</p>";
+            }
+
+            div1.appendChild(tbl);
+        }
+    </script>
+
+    <script>
+        async function getMethod() {
+            fetch('https://simkacrud.herokuapp.com/posts')
+                .then(response => response.json())
+                .then(posts => {
+                    drawTable(posts);
+                });
+        };
+
+        getMethod();
+
+        async function postMethod(titl, desc) {
+            let post = {
+                title: titl,
+                description: desc
+            };
+
+            let response = await fetch('https://simkacrud.herokuapp.com/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(post)
+            });
+        }
+
+        async function patchMethod(id, titl, desc) {
+            let post = {
+                title: titl,
+                description: desc
+            };
+
+            let response = await fetch('https://simkacrud.herokuapp.com/posts/' + id, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(post)
+            });
+        }
+
+        async function deleteMethod(id) {
+
+            let response = await fetch('https://simkacrud.herokuapp.com/posts/' + id, {
+                method: 'Delete'
+            });
+        }
+    </script>
+
+    <script>
+        var element = document.getElementById("form-create");
+        element.addEventListener("submit", function(event) {
+            event.preventDefault();
+            var title = new FormData(document.getElementById('form-create')).get('title');
+            var desc = new FormData(document.getElementById('form-create')).get('description');
+            postMethod(title, desc);
+            //window.location.reload();
+        })
+    </script>
+
+    <script>
+        var element = document.getElementById("form-update");
+        element.addEventListener("submit", function(event) {
+            event.preventDefault();
+            var _id = new FormData(document.getElementById('form-update')).get('_id');
+            var title = new FormData(document.getElementById('form-update')).get('title');
+            var desc = new FormData(document.getElementById('form-update')).get('description');
+            patchMethod(_id, title, desc);
+            //window.location.reload();
+        })
+    </script>
+
+    <script>
+        var element = document.getElementById("form-delete");
+        element.addEventListener("submit", function(event) {
+            event.preventDefault();
+            var _id = new FormData(document.getElementById('form-delete')).get('_id');
+            deleteMethod(_id);
+            //window.location.reload();
+        })
+    </script>
+</body>
+
+</html>
